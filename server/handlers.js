@@ -88,7 +88,7 @@ const bookSeat = async (seatID) => {
     
 };
 
-const addBooker = async ({fullName, email, seatID}) => {
+const addBooker = async ({fullName, email, seatId}) => {
 
   const client = await MongoClient(MONGO_URI, options);
   const dbName = "exercise_1";
@@ -100,9 +100,9 @@ const addBooker = async ({fullName, email, seatID}) => {
 
   try {
       const result = await db.collection("bookers").insertOne({
-                                                                _id : seatID ,
-                                                                fullName : fullName,
-                                                                email: email
+                                                                "_id" : seatId ,
+                                                                "fullName" : fullName,
+                                                                "email": email
                                                               });
 
       console.log("user adding requested");

@@ -1,20 +1,34 @@
 const router = require("express").Router();
+const delay = require('delay');
+
 
 const NUM_OF_ROWS = 8;
 const SEATS_PER_ROW = 12;
 
-// Code that is generating the seats.
-// ----------------------------------
-const seats = {};
-const row = ["A", "B", "C", "D", "E", "F", "G", "H"];
-for (let r = 0; r < row.length; r++) {
-  for (let s = 1; s < 13; s++) {
-    seats[`${row[r]}-${s}`] = {
-      price: 225,
-      isBooked: false,
-    };
-  }
-}
+
+const {
+  getSeats,
+  bookSeat,
+  addBooker
+} = require("./handlers");
+
+// const seats = {};
+// const row = ["A", "B", "C", "D", "E", "F", "G", "H"];
+// for (let r = 0; r < row.length; r++) {
+//   for (let s = 1; s < 13; s++) {
+//     seats[`${row[r]}-${s}`] = {
+//       _id: `${row[r]}-${s}`,  
+//       price: 225,
+//       isBooked: false,
+//     };
+//   }
+// }
+
+
+// console.log("gotSeats", gotSeats);
+
+
+
 // ----------------------------------
 //////// HELPERS
 const getRowName = (rowIndex) => {
@@ -38,6 +52,13 @@ const randomlyBookSeats = (num) => {
   return bookedSeats;
 };
 
+
+// router.get("/api/seats", getSeats);
+
+
+
+
+
 let state;
 
 router.get("/api/seat-availability", async (req, res) => {
@@ -46,6 +67,9 @@ router.get("/api/seat-availability", async (req, res) => {
       bookedSeats: randomlyBookSeats(30),
     };
   }
+  
+  const seats = await getSeats();
+
 
   return res.json({
     seats: seats,
@@ -58,7 +82,7 @@ router.get("/api/seat-availability", async (req, res) => {
 let lastBookingAttemptSucceeded = false;
 
 router.post("/api/book-seat", async (req, res) => {
-  const { seatId, creditCard, expiration } = req.body;
+  const { seatId, creditCard, expiration, fullName, email } = req.body;
 
   if (!state) {
     state = {
@@ -93,6 +117,9 @@ router.post("/api/book-seat", async (req, res) => {
   lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
 
   state.bookedSeats[seatId] = true;
+
+  await bookSeat(seatId);
+  await addBooker({fullName, email, seatId});
 
   return res.status(200).json({
     status: 200,

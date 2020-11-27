@@ -13,40 +13,66 @@ function TicketWidget() {
     state: { hasLoaded, seats, numOfRows, seatsPerRow },
   } = React.useContext(SeatContext);
 
+  console.log("seats received");
+
+  const getSeat = (seatID) => {
+    
+    for (let index = 0; index < seats.length; index++) {//don't use foreach for this one
+
+
+      const seat = seats[index];
+      if(seat._id === seatID){
+
+        return seat;
+      }
+    }
+
+  }
+
   if (!hasLoaded) {
     return <CircularProgress />;
   }
-  console.log(hasLoaded, seats, numOfRows, seatsPerRow);
-  return (
-    <Wrapper>
-      {range(numOfRows).map((rowIndex) => {
-        const rowName = getRowName(rowIndex);
+  // console.log(hasLoaded, seats, numOfRows, seatsPerRow);
+  else if(hasLoaded){
+    console.log("HAS BEEN LOADED", getSeat('A-1'));
+    return (
+      <Wrapper>
+        {range(numOfRows).map((rowIndex) => {
+          const rowName = getRowName(rowIndex);
 
-        return (
-          <Row key={rowIndex}>
-            <RowLabel>Row {rowName}</RowLabel>
-            {range(seatsPerRow).map((seatIndex) => {
-              const seatId = `${rowName}-${getSeatNum(seatIndex)}`;
-              const seat = seats[seatId];
+          return (
+            <Row key={rowIndex}>
+              <RowLabel>Row {rowName}</RowLabel>
+              {range(seatsPerRow).map((seatIndex) => {
+                const seatId = `${rowName}-${getSeatNum(seatIndex)}`;
+                const seat = seats[seatId];
+                // const seat = getSeat(seatId);
 
-              return (
-                <SeatWrapper key={seatId}>
-                  <Seat
-                    rowIndex={rowIndex}
-                    seatIndex={seatIndex}
-                    width={36}
-                    height={36}
-                    price={seat.price}
-                    status={seat.isBooked ? 'unavailable' : 'available'}
-                  />
-                </SeatWrapper>
-              );
-            })}
-          </Row>
-        );
-      })}
-    </Wrapper>
-  );
+                console.log("the seat inside render", seat);
+                console.log("seatID", seatId);
+
+                return (
+                  <SeatWrapper key={seatId}>
+                    <Seat
+                      rowIndex={rowIndex}
+                      seatIndex={seatIndex}
+                      width={36}
+                      height={36}
+                      price={seat.price}
+                      status={seat.isBooked ? 'unavailable' : 'available'}
+                    />
+                  </SeatWrapper>
+                );
+              })}
+            </Row>
+          );
+        })}
+      </Wrapper>
+    );
+  }
+  else {
+    return (<div>nothing</div>)
+  }
 }
 
 const Wrapper = styled.div`
